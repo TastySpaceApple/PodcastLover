@@ -159,7 +159,7 @@
       function loadLibrary(){
         listLibraryPodcasts.innerHTML =
           Object.keys(savedPodcasts).map(podcastId => {
-            return `<li data-podcast-id=${ podcastId } data-text-dir=${ findTextDirection(podcastEpisode.title) }>${savedPodcasts[podcastId].name}</li>`
+            return `<li data-podcast-id=${ podcastId }>${savedPodcasts[podcastId].name}</li>`
           }).join('')
       }
 
