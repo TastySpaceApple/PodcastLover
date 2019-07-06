@@ -14,7 +14,7 @@
     <article data-section="#2">
       <div class="sections-container">
         <section id="section--search">
-          <input id="txtSearch" type="search" placeholder="Search..."/><button class="btnSearch" id="btnSearch"></button>
+          <input id="txtSearch" type="search" placeholder="Search..." autocomplete="off"/><button class="btnSearch" id="btnSearch"></button>
           <ul id="listSearchResults"></ul>
         </section>
         <section id="section--library">
@@ -62,7 +62,7 @@
       window.addEventListener('load', load);
       function bind(){
         txtSearch.addEventListener('search', search);
-        listSearchResults.addEventListener('click', resultsClick)
+        //listSearchResults.addEventListener('click', resultsClick)
         listSearchResults.addEventListener('touchstart', resultsClick)
       }
       function search(){
@@ -122,15 +122,21 @@
         podcast_info_req.addEventListener("load", podcastInfoRecieved);
         podcast_info_req.send();
       }
+      function findTextDirection(s){
+        return /[\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC]/.test(s) ? 'rtl' : 'ltr';
+      }
       function podcastInfoRecieved(){
         var data = JSON.parse(podcast_info_req.responseText);
         txtPodcastTitle.textContent = data.title;
+        txtPodcastTitle.style.direction = findTextDirection(data.title);
         imgPodcastImage.src = data.image;
+
         episodesData = {};
         listPodcastEpisodes.innerHTML =
           data.episodes.map(podcastEpisode => {
             episodesData[podcastEpisode.guid] = podcastEpisode;
-            return `<li data-podcast-episode-id=${podcastEpisode.guid}>${podcastEpisode.title}</li>`
+            console.log(podcastEpisode.guid);
+            return `<li data-podcast-episode-id=${podcastEpisode.guid} data-text-dir=${ findTextDirection(podcastEpisode.title) }>${podcastEpisode.title}</li>`
           }).join('')
       }
 
@@ -142,7 +148,7 @@
         audioPlayer.play();
       }
 
-      listPodcastEpisodes.addEventListener('click', podcastEpisodeClicked);
+      //listPodcastEpisodes.addEventListener('click', podcastEpisodeClicked);
       listPodcastEpisodes.addEventListener('touchstart', podcastEpisodeClicked);
 
       //loadPodcast("http://rss.castbox.fm/everest/db19fd55c2634bf0aa16681de755cba8.xml");
@@ -153,7 +159,7 @@
       function loadLibrary(){
         listLibraryPodcasts.innerHTML =
           Object.keys(savedPodcasts).map(podcastId => {
-            return `<li data-podcast-id=${ podcastId }>${savedPodcasts[podcastId].name}</li>`
+            return `<li data-podcast-id=${ podcastId } data-text-dir=${ findTextDirection(podcastEpisode.title) }>${savedPodcasts[podcastId].name}</li>`
           }).join('')
       }
 
@@ -164,7 +170,7 @@
         loadPodcast(savedPodcasts[target.dataset.podcastId].feedUrl);
       }
 
-      listLibraryPodcasts.addEventListener('click', libraryPodcastClicked)
+      //listLibraryPodcasts.addEventListener('click', libraryPodcastClicked)
       listLibraryPodcasts.addEventListener('touchstart', libraryPodcastClicked)
 
       function navigate(section){
@@ -176,8 +182,8 @@
         navigate(e.target.getAttribute('href'));
       }
 
-      document.querySelector('nav').addEventListener('click', menuLinkClicked)
-      document.querySelector('touchstart').addEventListener('click', menuLinkClicked)
+      //document.querySelector('nav').addEventListener('click', menuLinkClicked)
+      document.querySelector('nav').addEventListener('touchstart', menuLinkClicked)
     </script>
   </body>
 </html>

@@ -189,3 +189,8 @@ article[data-section="#3"] ~ nav a.menulink--episodes{
   width: 90%;
   top: 15%;
 }
+
+li[data-text-dir="rtl"]{
+  direction: rtl;
+  text-align: right;
+}

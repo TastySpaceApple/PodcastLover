@@ -29,8 +29,8 @@ app.get('/podcast', (req,res) => {
 					return {
 						title: item.title[0],
 						pubDate: item.pubDate[0],
-						duration: item['itunes:duration'][0],
-						guid: item.guid[0],
+						duration: item['itunes:duration'] ? item['itunes:duration'][0] : null,
+						guid: item.guid[0]._ ? item.guid[0]._ : item.guid[0],
 						file: item.enclosure[0].$
 					}
 				}).reverse()
