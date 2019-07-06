@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/css/styles.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Podcast Lover &hearts;</title>
+  </head>
+  <body>
+    <article data-section="#1">
+      <div class="sections-container">
+        <section id="section--search">
+          <input id="txtSearch" type="search" placeholder="search..."/><button class="btnSearch" id="btnSearch"></button>
+          <ul id="listSearchResults"></ul>
+        </section>
+        <section id="section--library">
+          <h1>My Podcasts</h1>
+          <ul id="listLibraryPodcasts"></ul>
+        </section>
+        <section id="section--episodes">
+          <header>
+            <img></img>
+            <h1></h1>
+          </header>
+          <ul id="listEpisodes"></ul>
+        </section>
+      </div>
+    </article>
+    <div id="player">
+      <audio controls></audio>
+    </div>
+    <nav>
+      <a href="#1" class="menulink--search"></a>
+      <a href="#2" class="menulink--library"></a>
+      <a href="#3" class="menulink--episodes"></a>
+    </nav>
+    <script type="text/javascript">
+      let savedPodcasts = {};
+      let xhr;
+      let txtSearch = document.querySelector('#section--search input');
+      let listSearchResults = document.querySelector('#section--search ul');
+      let feedUrl = {};
+
+      function load(){
+        if('savedPodcasts' in localStorage && localStorage.savedPodcasts != null){
+          savedPodcasts = JSON.parse(localStorage.savedPodcasts) || {};
+          loadLibrary();
+        }
+      }
+
+      function save(){
+        localStorage.savedPodcasts = JSON.stringify(savedPodcasts);
+        loadLibrary();
+      }
+
+      window.addEventListener('load', load);
+      function bind(){
+        txtSearch.addEventListener('search', search);
+        listSearchResults.addEventListener('click', resultsClick)
+      }
+      function search(){
+        if(xhr)
+          xhr.abort();
+        xhr = new XMLHttpRequest();
+        xhr.open("GET", '/search?searchTerm='+encodeURIComponent(txtSearch.value));
+        listSearchResults.classList.add('loading');
+        listSearchResults.offsetHeight;
+        xhr.addEventListener("load", reqListener);
+        xhr.send();
+      }
+      function reqListener(){
+        let data = JSON.parse(xhr.responseText);
+        console.log(data);
+        searchResults = {};
+        listSearchResults.innerHTML =
+          data.results.map(podcast => {
+            searchResults[podcast.collectionId] = {name: podcast.collectionName, feedUrl: podcast.feedUrl};
+            return `<li data-podcast-id=${podcast.collectionId} ${podcast.collectionId in savedPodcasts ? 'data-saved=true' : ''}>${podcast.collectionName}</li>`
+          }).join('')
+
+        listSearchResults.offsetHeight;
+        listSearchResults.classList.remove('loading');
+      }
+
+      function resultsClick(e){
+        var target = e.target;
+        if(target.tagName == 'LI'){
+          if('saved' in target.dataset){
+            target.removeAttribute('data-saved');
+            delete savedPodcasts[target.dataset.podcastId];
+            save();
+          } else {
+            target.dataset.saved = true;
+            savedPodcasts[target.dataset.podcastId] =
+              {name: target.textContent, feedUrl:
+                searchResults[target.dataset.podcastId].feedUrl};
+            save();
+          }
+        }
+      }
+
+      bind();
+
+
+      let podcast_info_req;
+      let txtPodcastTitle = document.querySelector('#section--episodes h1');
+      let imgPodcastImage = document.querySelector('#section--episodes img');
+      let listPodcastEpisodes = document.querySelector('#section--episodes ul');
+      let episodesData = {};
+      let audioPlayer = document.querySelector('#player audio');
+
+      function loadPodcast(url){
+        podcast_info_req = new XMLHttpRequest();
+        podcast_info_req.open("GET", "/podcast?url=" + encodeURIComponent(url))
+        podcast_info_req.addEventListener("load", podcastInfoRecieved);
+        podcast_info_req.send();
+      }
+      function podcastInfoRecieved(){
+        var data = JSON.parse(podcast_info_req.responseText);
+        txtPodcastTitle.textContent = data.title;
+        imgPodcastImage.src = data.image;
+        episodesData = {};
+        listPodcastEpisodes.innerHTML =
+          data.episodes.map(podcastEpisode => {
+            episodesData[podcastEpisode.guid] = podcastEpisode;
+            return `<li data-podcast-episode-id=${podcastEpisode.guid}>${podcastEpisode.title}</li>`
+          }).join('')
+      }
+
+      listPodcastEpisodes.addEventListener('click', function(e){
+        var target = e.target;
+        if(!target.dataset.podcastEpisodeId) return;
+        //console.log(episodesData)
+        audioPlayer.src = episodesData[target.dataset.podcastEpisodeId].file.url;
+        audioPlayer.play();
+      })
+
+      //loadPodcast("http://rss.castbox.fm/everest/db19fd55c2634bf0aa16681de755cba8.xml");
+
+
+      let listLibraryPodcasts = document.querySelector('#section--library ul');
+
+      function loadLibrary(){
+        listLibraryPodcasts.innerHTML =
+          Object.keys(savedPodcasts).map(podcastId => {
+            return `<li data-podcast-id=${ podcastId }>${savedPodcasts[podcastId].name}</li>`
+          }).join('')
+      }
+
+      listLibraryPodcasts.addEventListener('click', function(e){
+        var target = e.target;
+        if(!target.dataset.podcastId) return;
+        navigate("#3");
+        loadPodcast(savedPodcasts[target.dataset.podcastId].feedUrl);
+      })
+
+      function navigate(section){
+        document.querySelector('article').dataset.section = section;
+      }
+
+      document.querySelector('nav').addEventListener('click', function(e){
+        e.preventDefault();
+        navigate(e.target.getAttribute('href'));
+      })
+    </script>
+  </body>
+</html>
