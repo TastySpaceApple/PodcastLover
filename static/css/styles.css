@@ -3,7 +3,7 @@ article {
   left: 0;
   top: 0;
   width: 100%;
-  height: calc(100% - 100px);
+  height: calc(100% - 200px);
   overflow: hidden;
 }
 article .sections-container{
@@ -160,25 +160,32 @@ a.menulink--episodes{
   background-image: url('../icons/menu--episodes.png');
 }
 
-article[data-section="#1"] + nav a.menulink--search{
+article[data-section="#1"] ~ nav a.menulink--search{
   background-image: url('../icons/menu--search--selected.png'); background-color: #222
 }
-article[data-section="#2"] + nav a.menulink--library{
+article[data-section="#2"] ~ nav a.menulink--library{
   background-image: url('../icons/menu--library--selected.png'); background-color: #222
 }
-article[data-section="#3"] + nav a.menulink--episodes{
+article[data-section="#3"] ~ nav a.menulink--episodes{
   background-image: url('../icons/menu--episodes--selected.png'); background-color: #222
 }
 
 #player{
-  position: fixed;
-  left: 5%;
-  bottom: 110px;
-  text-align: center;
-  width: 90%;
+  position: absolute;
+  background-color: #222;
+  height: 100px;
+  left: 0;
+  width: 100%;
+  bottom: 100px;
+  box-sizing: border-box;
+}
+
+.audioPlayer{
+  position: absolute;
   background-color: #f1f3f4;
   border-radius: 2em;
   padding: .2em;
-  margin-bottom: .2em;
-  box-sizing: border-box;
+  left: 5%;
+  width: 90%;
+  top: 15%;
 }

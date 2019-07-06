@@ -5,12 +5,15 @@
     <link rel="stylesheet" href="/css/styles.css">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Podcast Lover &hearts;</title>
+    <link rel="icon" type="image/png" href="favicon.png" sizes="32x32">
+    <link rel="apple-touch-icon-precomposed" type="image/png" href="icons/app-icon-apple.png">
+    <link rel="icon" href="icons/app-icon-square.png" sizes="192x192">
   </head>
   <body>
-    <article data-section="#1">
+    <article data-section="#2">
       <div class="sections-container">
         <section id="section--search">
-          <input id="txtSearch" type="search" placeholder="search..."/><button class="btnSearch" id="btnSearch"></button>
+          <input id="txtSearch" type="search" placeholder="Search..."/><button class="btnSearch" id="btnSearch"></button>
           <ul id="listSearchResults"></ul>
         </section>
         <section id="section--library">
@@ -27,7 +30,9 @@
       </div>
     </article>
     <div id="player">
-      <audio controls></audio>
+      <div class="audioPlayer">
+        <audio controls></audio>
+      </div>
     </div>
     <nav>
       <a href="#1" class="menulink--search"></a>
@@ -57,6 +62,7 @@
       function bind(){
         txtSearch.addEventListener('search', search);
         listSearchResults.addEventListener('click', resultsClick)
+        listSearchResults.addEventListener('touchstart', resultsClick)
       }
       function search(){
         if(xhr)
@@ -127,13 +133,16 @@
           }).join('')
       }
 
-      listPodcastEpisodes.addEventListener('click', function(e){
+      function podcastEpisodeClicked(e){
         var target = e.target;
         if(!target.dataset.podcastEpisodeId) return;
         //console.log(episodesData)
         audioPlayer.src = episodesData[target.dataset.podcastEpisodeId].file.url;
         audioPlayer.play();
-      })
+      }
+
+      listPodcastEpisodes.addEventListener('click', podcastEpisodeClicked);
+      listPodcastEpisodes.addEventListener('touchstart', podcastEpisodeClicked);
 
       //loadPodcast("http://rss.castbox.fm/everest/db19fd55c2634bf0aa16681de755cba8.xml");
 
@@ -147,21 +156,27 @@
           }).join('')
       }
 
-      listLibraryPodcasts.addEventListener('click', function(e){
+      function libraryPodcastClicked(e){
         var target = e.target;
         if(!target.dataset.podcastId) return;
         navigate("#3");
         loadPodcast(savedPodcasts[target.dataset.podcastId].feedUrl);
-      })
+      }
+
+      listLibraryPodcasts.addEventListener('click', libraryPodcastClicked)
+      listLibraryPodcasts.addEventListener('touchstart', libraryPodcastClicked)
 
       function navigate(section){
         document.querySelector('article').dataset.section = section;
       }
 
-      document.querySelector('nav').addEventListener('click', function(e){
+      function menuLinkClicked(e){
         e.preventDefault();
         navigate(e.target.getAttribute('href'));
-      })
+      }
+
+      document.querySelector('nav').addEventListener('click', menuLinkClicked)
+      document.querySelector('touchstart').addEventListener('click', menuLinkClicked)
     </script>
   </body>
 </html>
