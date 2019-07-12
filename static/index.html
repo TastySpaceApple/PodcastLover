@@ -9,6 +9,7 @@
     <link rel="apple-touch-icon-precomposed" type="image/png" href="icons/app-icon-apple.png">
     <link rel="icon" href="icons/app-icon-square.png" sizes="192x192">
     <meta name="mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.json">
   </head>
   <body>
     <article data-section="#2">
@@ -182,8 +183,47 @@
         navigate(e.target.getAttribute('href'));
       }
 
+
+      function Player(){
+
+      }
+      Player.prototype.play = function () {
+        if ('mediaSession' in navigator) {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: 'Never Gonna Give You Up',
+            artist: 'Rick Astley',
+            album: 'Whenever You Need Somebody',
+            artwork: [
+              { src: 'https://dummyimage.com/96x96',   sizes: '96x96',   type: 'image/png' },
+              { src: 'https://dummyimage.com/128x128', sizes: '128x128', type: 'image/png' },
+              { src: 'https://dummyimage.com/192x192', sizes: '192x192', type: 'image/png' },
+              { src: 'https://dummyimage.com/256x256', sizes: '256x256', type: 'image/png' },
+              { src: 'https://dummyimage.com/384x384', sizes: '384x384', type: 'image/png' },
+              { src: 'https://dummyimage.com/512x512', sizes: '512x512', type: 'image/png' },
+            ]
+          });
+
+          navigator.mediaSession.setActionHandler('play', function() {});
+          navigator.mediaSession.setActionHandler('pause', function() {});
+          navigator.mediaSession.setActionHandler('seekbackward', function() {});
+          navigator.mediaSession.setActionHandler('seekforward', function() {});
+          navigator.mediaSession.setActionHandler('previoustrack', function() {});
+          navigator.mediaSession.setActionHandler('nexttrack', function() {});
+        }
+
+      };
       //document.querySelector('nav').addEventListener('click', menuLinkClicked)
       document.querySelector('nav').addEventListener('touchstart', menuLinkClicked)
+    </script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js')
+              .then((reg) => {
+                console.log('Service worker registered.', reg);
+              });
+        });
+      }
     </script>
   </body>
 </html>
